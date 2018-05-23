@@ -1,0 +1,24 @@
+{
+  "name": "leo-aws",
+  "version": "1.0.0",
+  "description": "Helper wrappers around AWS services, specifically to ease backoff retry and streaming of data into and out of AWS services",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Leo",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LeoPlatform/leo-aws"
+  },
+  "keywords": [
+    "AWS",
+    "streaming",
+    "backoff",
+    "retry"
+  ]
+}
