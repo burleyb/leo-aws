@@ -2,11 +2,13 @@ let cache = {};
 
 const secrets = require("./lib/secretsmanager");
 const dynamodb = require("./lib/dynamodb");
+const kms = require("./lib/kms");
 
 function build(configuration) {
 	return {
 		secrets: secrets(configuration),
-		dynamodb: dynamodb(configuration)
+		dynamodb: dynamodb(configuration),
+		kms: kms(configuration)
 	};
 }
 
