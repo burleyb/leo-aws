@@ -1,14 +1,16 @@
 let cache = {};
 
-const secrets = require("./lib/secretsmanager");
-const dynamodb = require("./lib/dynamodb");
 const cloudformation = require('./lib/cloudformation');
+const dynamodb = require("./lib/dynamodb");
+const kms = require("./lib/kms");
+const secrets = require("./lib/secretsmanager");
 
 function build(configuration) {
 	return {
-		secrets: secrets(configuration),
+		cloudformation: cloudformation(configuration),
 		dynamodb: dynamodb(configuration),
-		cloudformation: cloudformation(configuration)
+		kms: kms(configuration),
+		secrets: secrets(configuration)
 	};
 }
 
