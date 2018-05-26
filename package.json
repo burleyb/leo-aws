@@ -23,7 +23,7 @@
   ],
   "dependencies": {
     "async": "^2.6.1",
-    "aws-sdk": "^2.245.1",
+    "aws-sdk": "^2.247.1",
     "extend": "^3.0.1"
   }
 }
