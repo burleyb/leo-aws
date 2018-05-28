@@ -7,6 +7,7 @@ const secrets = require("./lib/secretsmanager");
 
 function build(configuration) {
 	return {
+		region: configuration.region,
 		cloudformation: cloudformation(configuration),
 		dynamodb: dynamodb(configuration),
 		kms: kms(configuration),
