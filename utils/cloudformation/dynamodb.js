@@ -1,7 +1,7 @@
 const autoscale = require("./autoscale");
 
 module.exports = {
-	table: function(logicalId, main, secondaryKeys = []) {
+	table: function(logicalId, main, globalIndexes = {}) {
 		let throughput = main.throughput;
 		delete main.throughput;
 
@@ -16,14 +16,24 @@ module.exports = {
 			};
 		});
 
+		Object.keys(globalIndexes).forEach(key => {
+			let gIndex = globalIndexes[key];
+			Object.keys(gIndex).forEach(name => {
+				if (["autoscale", "throughput"].indexOf(name) === -1) {
+					attributes[name] = {
+						AttributeName: name,
+						AttributeType: gIndex[name]
+					};
+				}
+			})
+		});
+
+
 		let cfSnippet = {
 			[logicalId]: {
 				Type: "AWS::DynamoDB::Table",
 				Properties: {
-					AttributeDefinitions: [{
-						AttributeName: "id",
-						AttributeType: "S"
-					}],
+					AttributeDefinitions: Object.keys(attributes).map(name => attributes[name]),
 					KeySchema: Object.keys(main).map((name, i) => {
 						return {
 							AttributeName: name,
@@ -33,26 +43,49 @@ module.exports = {
 					ProvisionedThroughput: {
 						"ReadCapacityUnits": throughput.read || 20,
 						"WriteCapacityUnits": throughput.write || 20,
-					}
+					},
+					GlobalSecondaryIndexes: Object.keys(globalIndexes).map(key => {
+						let gIndex = globalIndexes[key];
+						let gThroughput = Object.assign({
+							read: throughput.read || 20,
+							write: throughput.write || 20
+						}, gIndex.throughput || {});
+						return {
+							IndexName: key,
+							KeySchema: Object.keys(gIndex).filter(key => ["autoscale", "throughput"].indexOf(key) === -1).map((name, i) => {
+								return {
+									AttributeName: name,
+									KeyType: i === 0 ? "HASH" : "RANGE"
+								};
+							}),
+							ProvisionedThroughput: {
+								"ReadCapacityUnits": gThroughput.read,
+								"WriteCapacityUnits": gThroughput.write
+							},
+							Projection: {
+								ProjectionType: 'ALL'
+							}
+						};
+					})
 				}
 			}
 		};
 
-		function addScale(targetType, throughput, type) {
+		function addScale(target, targetType, throughput, type, name = "") {
 			let targetCapacity = throughput[`Target${type}Capacity`];
 			if (typeof targetCapacity == "number") {
 				targetCapacity = {
 					TargetValue: targetCapacity
 				};
 			}
-			let scalableTargetId = `${logicalId}${type}CapacityScalableTarget`;
+			let scalableTargetId = `${logicalId}${name}${type}CapacityScalableTarget`;
 			cfSnippet[scalableTargetId] = {
 				Type: "AWS::ApplicationAutoScaling::ScalableTarget",
 				Properties: {
 					MaxCapacity: throughput[`Max${type}CapacityUnits`] || throughput[`${type}CapacityUnits`],
 					MinCapacity: throughput[`Min${type}CapacityUnits`] || throughput[`${type}CapacityUnits`],
 					ResourceId: {
-						"Fn::Sub": `${targetType}/\${${logicalId}}`,
+						"Fn::Sub": `${target}`,
 					},
 					RoleARN: {
 						"Fn::Sub": "${AutoScalingRole.Arn}"
@@ -62,7 +95,7 @@ module.exports = {
 				}
 			};
 
-			let policyId = `${logicalId}${type}AutoScalingPolicy`;
+			let policyId = `${logicalId}${name}${type}AutoScalingPolicy`;
 			cfSnippet[policyId] = {
 				Type: "AWS::ApplicationAutoScaling::ScalingPolicy",
 				Properties: {
@@ -84,7 +117,7 @@ module.exports = {
 		let scaled = false;
 		if (shouldAutoscale || throughput.TargetReadCapacity) {
 			scaled = true;
-			addScale("table", Object.assign({
+			addScale(`table/\${${logicalId}}`, "table", Object.assign({
 				"MinReadCapacityUnits": throughput.read,
 				"MaxReadCapacityUnits": throughput.read * 10,
 				"TargetReadCapacity": 70,
@@ -92,16 +125,43 @@ module.exports = {
 		}
 		if (shouldAutoscale || throughput.TargetWriteCapacity) {
 			scaled = true;
-			addScale("table", Object.assign({
+			addScale(`table/\${${logicalId}}`, "table", Object.assign({
 				"MinWriteCapacityUnits": throughput.write,
 				"MaxWriteCapacityUnits": throughput.write * 10,
 				"TargetWriteCapacity": 70
 			}, throughput), "Write");
 		}
+		Object.keys(globalIndexes).forEach(key => {
+			let gIndex = globalIndexes[key];
+			let shouldAutoscale = gIndex.autoscale;
+			let gThroughput = Object.assign({
+				read: throughput.read || 20,
+				write: throughput.write || 20
+			}, gIndex.throughput || {});
 
+
+			let scaled = false;
+			if (shouldAutoscale || gThroughput.TargetReadCapacity) {
+				scaled = true;
+				addScale(`table/\${${logicalId}}/index/${key}`, "index", Object.assign({
+					"MinReadCapacityUnits": gThroughput.read,
+					"MaxReadCapacityUnits": gThroughput.read * 10,
+					"TargetReadCapacity": 70,
+				}, gThroughput), "Read", key);
+			}
+			if (shouldAutoscale || gThroughput.TargetWriteCapacity) {
+				scaled = true;
+				addScale(`table/\${${logicalId}}/index/${key}`, "index", Object.assign({
+					"MinWriteCapacityUnits": gThroughput.write,
+					"MaxWriteCapacityUnits": gThroughput.write * 10,
+					"TargetWriteCapacity": 70
+				}, gThroughput), "Write", key);
+			}
+		});
 		if (scaled == true) {
 			Object.assign(cfSnippet, autoscale.dynamodbrole());
 		}
+
 		return cfSnippet;
 	}
 };
