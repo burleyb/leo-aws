@@ -1,13 +1,19 @@
 module.exports = function() {
-	let cf = {};
+	let cf = {
+		Resources: {}
+	};
 	return {
 		dynamodb: require("./cloudformation/dynamodb"),
-		extend: function(resources) {
-			Object.assign(cf, resources);
+		extend: function(section, data) {
+			if (!cf[section]) {
+				cf[section] = {};
+			}
+
+			Object.assign(cf[section], data);
 			return this;
 		},
 		add: function(resources) {
-			Object.assign(cf, resources);
+			Object.assign(cf.Resources, resources);
 			return this;
 		},
 		export: () => {

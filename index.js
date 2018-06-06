@@ -11,7 +11,8 @@ function build(configuration) {
 		cloudformation: cloudformation(configuration),
 		dynamodb: dynamodb(configuration),
 		kms: kms(configuration),
-		secrets: secrets(configuration)
+		secrets: secrets(configuration),
+		profile: configuration.profile
 	};
 }
 
