@@ -4,15 +4,21 @@ const cloudformation = require('./lib/cloudformation');
 const dynamodb = require("./lib/dynamodb");
 const kms = require("./lib/kms");
 const secrets = require("./lib/secretsmanager");
+const AWS = require('aws-sdk');
 
 function build(configuration) {
+	if (configuration.profile && !configuration.credentials) {
+		configuration.credentials = new AWS.SharedIniFileCredentials({profile: configuration.profile});
+	}
+
 	return {
 		region: configuration.region,
 		cloudformation: cloudformation(configuration),
 		dynamodb: dynamodb(configuration),
 		kms: kms(configuration),
 		secrets: secrets(configuration),
-		profile: configuration.profile
+		profile: configuration.profile,
+		config: configuration
 	};
 }
 
