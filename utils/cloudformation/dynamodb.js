@@ -19,7 +19,7 @@ module.exports = {
 		Object.keys(globalIndexes).forEach(key => {
 			let gIndex = globalIndexes[key];
 			Object.keys(gIndex).forEach(name => {
-				if (["autoscale", "throughput"].indexOf(name) === -1) {
+				if (["autoscale", "throughput", "projection"].indexOf(name) === -1) {
 					attributes[name] = {
 						AttributeName: name,
 						AttributeType: gIndex[name]
@@ -52,7 +52,7 @@ module.exports = {
 						}, gIndex.throughput || {});
 						return {
 							IndexName: key,
-							KeySchema: Object.keys(gIndex).filter(key => ["autoscale", "throughput"].indexOf(key) === -1).map((name, i) => {
+							KeySchema: Object.keys(gIndex).filter(key => ["autoscale", "throughput", "projection"].indexOf(key) === -1).map((name, i) => {
 								return {
 									AttributeName: name,
 									KeyType: i === 0 ? "HASH" : "RANGE"
@@ -63,7 +63,7 @@ module.exports = {
 								"WriteCapacityUnits": gThroughput.write
 							},
 							Projection: {
-								ProjectionType: 'ALL'
+								ProjectionType: gIndex.projection || 'ALL'
 							}
 						};
 					})
