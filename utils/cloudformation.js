@@ -1,19 +1,20 @@
-module.exports = function() {
-	let cf = {
-		Resources: {}
-	};
+const merge = require("lodash.merge");
+module.exports = function(data) {
+	let cf = {};
+	if (data) {
+		merge(cf, data);
+	}
+	if ('Resources' in cf) {
+		cf.Resources = {};
+	}
 	return {
 		dynamodb: require("./cloudformation/dynamodb"),
-		extend: function(section, data) {
-			if (!cf[section]) {
-				cf[section] = {};
-			}
-
-			Object.assign(cf[section], data);
+		extend: function(data) {
+			merge(cf, data);
 			return this;
 		},
 		add: function(resources) {
-			Object.assign(cf.Resources, resources);
+			merge(cf.Resources, resources);
 			return this;
 		},
 		export: () => {
