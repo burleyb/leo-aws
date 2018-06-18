@@ -24,6 +24,7 @@
   "dependencies": {
     "async": "^2.6.1",
     "aws-sdk": "^2.247.1",
-    "extend": "^3.0.1"
+    "extend": "^3.0.1",
+    "lodash.merge": "^4.6.1"
   }
 }
