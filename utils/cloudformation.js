@@ -4,7 +4,7 @@ module.exports = function(data) {
 	if (data) {
 		merge(cf, data);
 	}
-	if ('Resources' in cf) {
+	if (!('Resources' in cf)) {
 		cf.Resources = {};
 	}
 	return {
