@@ -4,6 +4,7 @@ const cloudformation = require('./lib/cloudformation');
 const dynamodb = require("./lib/dynamodb");
 const kms = require("./lib/kms");
 const secrets = require("./lib/secretsmanager");
+const sqs = require("./lib/sqs");
 const AWS = require('aws-sdk');
 
 function build(configuration) {
@@ -18,7 +19,8 @@ function build(configuration) {
 		kms: kms(configuration),
 		secrets: secrets(configuration),
 		profile: configuration.profile,
-		config: configuration
+		config: configuration,
+		sqs: sqs(configuration)
 	};
 }
 
