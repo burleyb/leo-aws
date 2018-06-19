@@ -1,6 +1,6 @@
 {
   "name": "leo-aws",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Helper wrappers around AWS services, specifically to ease backoff retry and streaming of data into and out of AWS services",
   "main": "index.js",
   "directories": {
@@ -23,7 +23,8 @@
   ],
   "dependencies": {
     "async": "^2.6.1",
-    "aws-sdk": "^2.245.1",
-    "extend": "^3.0.1"
+    "aws-sdk": "^2.247.1",
+    "extend": "^3.0.1",
+    "lodash.merge": "^4.6.1"
   }
 }

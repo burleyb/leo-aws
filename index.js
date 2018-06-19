@@ -1,12 +1,26 @@
 let cache = {};
 
-const secrets = require("./lib/secretsmanager");
+const cloudformation = require('./lib/cloudformation');
 const dynamodb = require("./lib/dynamodb");
+const kms = require("./lib/kms");
+const secrets = require("./lib/secretsmanager");
+const sqs = require("./lib/sqs");
+const AWS = require('aws-sdk');
 
 function build(configuration) {
+	if (configuration.profile && !configuration.credentials) {
+		configuration.credentials = new AWS.SharedIniFileCredentials({profile: configuration.profile});
+	}
+
 	return {
+		region: configuration.region,
+		cloudformation: cloudformation(configuration),
+		dynamodb: dynamodb(configuration),
+		kms: kms(configuration),
 		secrets: secrets(configuration),
-		dynamodb: dynamodb(configuration)
+		profile: configuration.profile,
+		config: configuration,
+		sqs: sqs(configuration)
 	};
 }
 
