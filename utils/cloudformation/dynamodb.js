@@ -3,6 +3,9 @@ const autoscale = require("./autoscale");
 module.exports = {
 	table: function(logicalId, main, globalIndexes = {}) {
 		let throughput = main.throughput;
+		throughput.read = throughput.read || throughput.ReadCapacityUnits;
+		throughput.write = throughput.write || throughput.WriteCapacityUnits;
+
 		delete main.throughput;
 
 		let shouldAutoscale = main.autoscale;
@@ -46,6 +49,10 @@ module.exports = {
 					},
 					GlobalSecondaryIndexes: Object.keys(globalIndexes).map(key => {
 						let gIndex = globalIndexes[key];
+						if (gIndex.throughput) {
+							gIndex.throughput.read = gIndex.throughput.read || gIndex.throughput.ReadCapacityUnits;
+							gIndex.throughput.write = gIndex.throughput.write || gIndex.throughput.WriteCapacityUnits;
+						}
 						let gThroughput = Object.assign({
 							read: throughput.read || 20,
 							write: throughput.write || 20
