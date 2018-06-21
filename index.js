@@ -1,3 +1,4 @@
+let config = require("leo-config");
 let cache = {};
 
 const cloudformation = require('./lib/cloudformation');
@@ -9,10 +10,15 @@ const AWS = require('aws-sdk');
 
 function build(configuration) {
 	if (configuration.profile && !configuration.credentials) {
-		configuration.credentials = new AWS.SharedIniFileCredentials({profile: configuration.profile});
+		configuration.credentials = new AWS.SharedIniFileCredentials({
+			profile: configuration.profile,
+			role: configuration.role
+		});
 	}
 
-	return {
+	return Object.assign((config) => {
+		return new build(config)
+	}, {
 		region: configuration.region,
 		cloudformation: cloudformation(configuration),
 		dynamodb: dynamodb(configuration),
@@ -21,14 +27,7 @@ function build(configuration) {
 		profile: configuration.profile,
 		config: configuration,
 		sqs: sqs(configuration)
-	};
+	});
 }
 
-module.exports = function(configuration, forceNew = false) {
-	let c = JSON.stringify(configuration);
-
-	if (!(c in cache) || forceNew) {
-		cache[c] = build(configuration);
-	}
-	return cache[c];
-};
+module.exports = new build(config.leoaws);
