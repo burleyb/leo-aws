@@ -8,6 +8,11 @@ const secrets = require("./lib/secretsmanager");
 const sqs = require("./lib/sqs");
 const AWS = require('aws-sdk');
 
+/**
+ *
+ * @param configuration
+ * @returns {(function(*=)) & {region, cloudformation: {_service, getStackResources, get, runChangeSet, run, describeStackResources, waitFor, createStack}, dynamodb: {_service, get, put, update, scan, query, smartQuery, batchGetTable, batchGetHashkey, writeToTableInChunks}, kms: {_service, decrypt, encrypt}, secrets: {_service, getSecret}, profile, config: *, sqs: {_service, deleteMessage, sendMessage, receiveMessage, sendMessageBatch}}}
+ */
 function build(configuration) {
 	if (configuration.profile && !configuration.credentials) {
 		configuration.credentials = new AWS.SharedIniFileCredentials({

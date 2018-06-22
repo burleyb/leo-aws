@@ -7,7 +7,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --coverage",
+    "test-unit": "NODE_ENV=test mocha --require co-mocha 'test/*/*.js'"
   },
   "author": "Leo",
   "license": "MIT",
@@ -23,9 +24,14 @@
   ],
   "dependencies": {
     "async": "^2.6.1",
-    "aws-sdk": "^2.247.1",
+    "aws-sdk": "^2.262.1",
+    "backoff": "^2.5.0",
     "extend": "^3.0.1",
-    "leo-config": "^1.0.3",
+    "leo-config": "^1.0.4",
     "lodash.merge": "^4.6.1"
+  },
+  "devDependencies": {
+    "jest": "^23.1.0",
+    "uniqid": "^5.0.3"
   }
 }
