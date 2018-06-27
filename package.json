@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "jest": "^23.1.0",
-    "uniqid": "^5.0.3"
+    "uniqid": "^5.0.3",
+    "moment": "^2.22.2"
   }
 }
