@@ -5,11 +5,14 @@ module.exports = {
 		let throughput = main.throughput;
 		throughput.read = throughput.read || throughput.ReadCapacityUnits;
 		throughput.write = throughput.write || throughput.WriteCapacityUnits;
-
 		delete main.throughput;
 
 		let shouldAutoscale = main.autoscale;
 		delete main.autoscale;
+
+
+		let stream = main.stream;
+		delete main.stream;
 
 		let attributes = {};
 		Object.keys(main).forEach(name => {
@@ -73,10 +76,18 @@ module.exports = {
 								ProjectionType: gIndex.projection || 'ALL'
 							}
 						};
-					})
+					}),
+					"StreamSpecification": {
+
+					}
 				}
 			}
 		};
+		if (stream) {
+			cfSnippet[logicalId].Properties.StreamSpecification = {
+				StreamViewType: stream
+			};
+		}
 
 		function addScale(target, targetType, throughput, type, name = "") {
 			let targetCapacity = throughput[`Target${type}Capacity`];
