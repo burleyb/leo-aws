@@ -44,10 +44,8 @@ function getFromCache(name, expireDuration, overlyStaleDuration) {
 		let staleDuration = Date.now() - c.ts;
 
 		let isExpired = c.ts === 0 || staleDuration >= expireDuration;
-		console.log(isExpired, " is expired");
 		if (isExpired) {
 			let isOverlyStale = c.ts === 0 || staleDuration >= overlyStaleDuration;
-			console.log(isOverlyStale, " is overlystale");
 			if (isOverlyStale) {
 				return false;
 			} else {
