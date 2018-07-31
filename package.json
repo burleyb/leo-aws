@@ -1,6 +1,6 @@
 {
   "name": "leo-aws",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Helper wrappers around AWS services, specifically to ease backoff retry and streaming of data into and out of AWS services",
   "main": "index.js",
   "directories": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test1": "jest $NODE_DEBUG_OPTION --coverage",
-	"test": "node $NODE_DEBUG_OPTION node_modules/jest/bin/jest.js --coverage --detectOpenHandles"
+    "test": "node $NODE_DEBUG_OPTION node_modules/jest/bin/jest.js --coverage --detectOpenHandles"
   },
   "author": "Leo",
   "license": "MIT",
