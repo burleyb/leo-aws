@@ -76,10 +76,7 @@ module.exports = {
 								ProjectionType: gIndex.projection || 'ALL'
 							}
 						};
-					}),
-					"StreamSpecification": {
-
-					}
+					})
 				}
 			}
 		};

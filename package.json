@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test1": "jest $NODE_DEBUG_OPTION --coverage",
-	"test": "node $NODE_DEBUG_OPTION node_modules/jest/bin/jest.js --coverage --detectOpenHandles"
+    "test": "node $NODE_DEBUG_OPTION node_modules/jest/bin/jest.js --coverage --detectOpenHandles"
   },
   "author": "Leo",
   "license": "MIT",
