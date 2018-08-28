@@ -11,7 +11,7 @@ const AWS = require('aws-sdk');
 
 module.exports = function (service) {
 	const configuration = config.leoaws;
-	if (configuration.profile && !configuration.credentials) {
+	if (configuration && configuration.profile && !configuration.credentials) {
 		configuration.credentials = new AWS.SharedIniFileCredentials({
 			profile: configuration.profile,
 			role: configuration.role
