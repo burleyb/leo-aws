@@ -357,3 +357,14 @@ function smartQuery(limit = null, count = null)
 		});
 	});
 }
+
+// example for begins_with, contains, etc…
+// let result = await leoaws.dynamodb.scan({
+// 	TableName: config.aggregationTableName,
+// 	FilterExpression: 'begins_with(#id, :id)',
+// 	ExpressionAttributeNames: {
+// 		"#id": "id"
+// 	},
+// 	ExpressionAttributeValues: {
+// 		":id": 'weather'
+// 	}
