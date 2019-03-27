@@ -3,11 +3,18 @@ const autoscale = require("./autoscale");
 module.exports = {
 	table: function(logicalId, main, globalIndexes = {}) {
 		let throughput = main.throughput;
-		throughput.read = throughput.read || throughput.ReadCapacityUnits;
-		throughput.write = throughput.write || throughput.WriteCapacityUnits;
+		if(typeof throughput == "string" && throughput == "ondemand") {
+			throughput = undefined
+		} else {
+			throughput.read = throughput.read || throughput.ReadCapacityUnits;
+			throughput.write = throughput.write || throughput.WriteCapacityUnits;
+		}
 		delete main.throughput;
 
 		let shouldAutoscale = main.autoscale;
+		if(!throughput) {
+			shouldAutoscale = false
+		}
 		delete main.autoscale;
 
 
@@ -46,21 +53,21 @@ module.exports = {
 							KeyType: i === 0 ? "HASH" : "RANGE"
 						}
 					}),
-					ProvisionedThroughput: {
-						"ReadCapacityUnits": throughput.read || 20,
-						"WriteCapacityUnits": throughput.write || 20,
-					},
 					GlobalSecondaryIndexes: Object.keys(globalIndexes).map(key => {
 						let gIndex = globalIndexes[key];
-						if (gIndex.throughput) {
+						let gThroughput = null
+						if (gIndex.throughput && typeof gIndex.throughput == "string") {
+							gIndex.throughput = undefined
+							gThroughput = undefined
+						} else {
 							gIndex.throughput.read = gIndex.throughput.read || gIndex.throughput.ReadCapacityUnits;
 							gIndex.throughput.write = gIndex.throughput.write || gIndex.throughput.WriteCapacityUnits;
+							gThroughput = Object.assign({
+								read: throughput.read || 20,
+								write: throughput.write || 20
+							}, gIndex.throughput || {});
 						}
-						let gThroughput = Object.assign({
-							read: throughput.read || 20,
-							write: throughput.write || 20
-						}, gIndex.throughput || {});
-						return {
+						let indexDef = {
 							IndexName: key,
 							KeySchema: Object.keys(gIndex).filter(key => ["autoscale", "throughput", "projection"].indexOf(key) === -1).map((name, i) => {
 								return {
@@ -68,18 +75,32 @@ module.exports = {
 									KeyType: i === 0 ? "HASH" : "RANGE"
 								};
 							}),
-							ProvisionedThroughput: {
-								"ReadCapacityUnits": gThroughput.read,
-								"WriteCapacityUnits": gThroughput.write
-							},
 							Projection: {
 								ProjectionType: gIndex.projection || 'ALL'
 							}
 						};
+						if(gThroughput) {
+							indexDef.ProvisionedThroughput = {
+								"ReadCapacityUnits": gThroughput.read,
+								"WriteCapacityUnits": gThroughput.write
+							}
+						}
+						return indexDef
 					})
 				}
 			}
 		};
+		
+		if(throughput) {
+			cfSnippet[logicalId].Properties.ProvisionedThroughput = {
+				ReadCapacityUnits: throughput.read || 20,
+				WriteCapacityUnits: throughput.write || 20
+			};
+			cfSnippet[logicalId].Properties.BillingMode = "PROVISIONED"
+		} else {
+			cfSnippet[logicalId].Properties.BillingMode = "PAY_PER_REQUEST"
+		}
+		
 		if (stream) {
 			cfSnippet[logicalId].Properties.StreamSpecification = {
 				StreamViewType: stream
@@ -130,7 +151,7 @@ module.exports = {
 		}
 
 		let scaled = false;
-		if (shouldAutoscale || throughput.TargetReadCapacity) {
+		if (shouldAutoscale || throughput && (throughput.TargetReadCapacity ? throughput.TargetReadCapacity : false)) {
 			scaled = true;
 			addScale(`table/\${${logicalId}}`, "table", Object.assign({
 				"MinReadCapacityUnits": throughput.read,
@@ -138,7 +159,7 @@ module.exports = {
 				"TargetReadCapacity": 70,
 			}, throughput), "Read");
 		}
-		if (shouldAutoscale || throughput.TargetWriteCapacity) {
+		if (shouldAutoscale || throughput && (throughput.TargetWriteCapacity ? throughput.TargetWriteCapacity : false)) {
 			scaled = true;
 			addScale(`table/\${${logicalId}}`, "table", Object.assign({
 				"MinWriteCapacityUnits": throughput.write,
@@ -149,14 +170,18 @@ module.exports = {
 		Object.keys(globalIndexes).forEach(key => {
 			let gIndex = globalIndexes[key];
 			let shouldAutoscale = gIndex.autoscale;
-			let gThroughput = Object.assign({
-				read: throughput.read || 20,
-				write: throughput.write || 20
-			}, gIndex.throughput || {});
-
+			let gThroughput = null
+			if(!gIndex.throughput) {
+				shouldAutoscale = false
+			} else {
+				gThroughput = Object.assign({
+					read: throughput && throughput.read ? throughput.read : 20,
+					write: throughput && throughput.write ? throughput.write : 20
+				}, gIndex.throughput || {});
+			}
 
 			let scaled = false;
-			if (shouldAutoscale || gThroughput.TargetReadCapacity) {
+			if (shouldAutoscale || gThroughput && (gThroughput.TargetReadCapacity ? gThroughput.TargetReadCapacity : false)) {
 				scaled = true;
 				addScale(`table/\${${logicalId}}/index/${key}`, "index", Object.assign({
 					"MinReadCapacityUnits": gThroughput.read,
@@ -164,7 +189,7 @@ module.exports = {
 					"TargetReadCapacity": 70,
 				}, gThroughput), "Read", key);
 			}
-			if (shouldAutoscale || gThroughput.TargetWriteCapacity) {
+			if (shouldAutoscale || gThroughput && (gThroughput.TargetWriteCapacity ? gThroughput.TargetWriteCapacity : false)) {
 				scaled = true;
 				addScale(`table/\${${logicalId}}/index/${key}`, "index", Object.assign({
 					"MinWriteCapacityUnits": gThroughput.write,
