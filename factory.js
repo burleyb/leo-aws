@@ -12,13 +12,17 @@ const leoaws = {
 	sqs: require('./lib/sqs'),
 };
 
-function factory (service) {
+function factory (service, options) {
 	const configuration = config.leoaws;
 	if (configuration && configuration.profile && !configuration.credentials) {
 		configuration.credentials = new AWS.SharedIniFileCredentials({
 			profile: configuration.profile,
-			role: configuration.role
+			role: configuration.role,
 		});
+	}
+
+	if (options) {
+		merge(configuration, options);
 	}
 
 	const lowerService = service.toLowerCase();
@@ -27,7 +31,7 @@ function factory (service) {
 	} else {
 		// return a configured AWS service
 		return {
-			_service: new AWS[service](configuration)
+			_service: new AWS[service](configuration),
 		};
 	}
 }

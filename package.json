@@ -1,6 +1,6 @@
 {
 	"name": "leo-aws",
-	"version": "1.5.0",
+	"version": "1.6.0",
 	"description": "Helper wrappers around AWS services, specifically to ease backoff retry and streaming of data into and out of AWS services",
 	"main": "index.js",
 	"directories": {
@@ -27,7 +27,7 @@
 		"backoff": "^2.5.0",
 		"leo-config": "^1.1.0",
 		"leo-logger": "^1.0.1",
-		"leo-streams": "^1.1.1",
+		"leo-streams": "^1.1.2",
 		"lodash": "^4.17.14",
 		"lodash.merge": "^4.6.2"
 	},
@@ -37,6 +37,6 @@
 		"uniqid": "^5.0.3"
 	},
 	"peerDependencies": {
-		"aws-sdk": ">=2.400.0"
+		"aws-sdk": "^2.581.0"
 	}
 }
