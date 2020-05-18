@@ -178,5 +178,14 @@ module.exports = {
 		}
 
 		return cfSnippet;
+	},
+	tableStaticName: function(logicalId, main,globalIndexes = {}){
+		let snippet = this.table(logicalId, main, globalIndexes);
+
+		snippet[logicalId].Properties.TableName = {
+			"Fn::Sub": "${AWS::StackName}-" + logicalId
+		}
+
+		return snippet;
 	}
 };
