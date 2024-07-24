@@ -1,10 +1,12 @@
 'use strict';
 
-require('leo-config').bootstrap({_global: {
-	leoaws: {
-		region: 'us-west-2'
+require('leo-config').bootstrap({
+	_global: {
+		leoaws: {
+			region: 'us-east-1'
+		}
 	}
-}});
+});
 
 const leoaws = require('./../../');
 const assert = require('assert');
@@ -13,8 +15,8 @@ const moment = require('moment');
 const ls = require('leo-streams');
 const stream = require('stream');
 
-const entityTable = 'EntityTable-Entities-FJU9SZ09XBHM';
-const settingsTable = 'DevBus-LeoSettings-14HODE41JWL2O';
+const entityTable = 'order-test-entity';
+const settingsTable = 'TestBus-LeoSettings-YHQHOKWR337E';
 const dynamodb = [
 	{
 		id: 'qatest1',
@@ -48,12 +50,12 @@ describe('DynamoDB', async function() {
 	});
 
 	test('Put', async () => {
-		let result = await leoaws.dynamodb.put(settingsTable, dynamodb[0].id, {uniqid: dynamodb[0].uniqid});
+		let result = await leoaws.dynamodb.put(settingsTable, dynamodb[0].id, { id: dynamodb[0].id, uniqid: dynamodb[0].uniqid });
 		expect(result).toBe(true);
 	});
 
 	test('Merge', async () => {
-		let result = await leoaws.dynamodb.merge(settingsTable, dynamodb[0].id, {newuniqid: dynamodb[0].newuniqid});
+		let result = await leoaws.dynamodb.merge(settingsTable, dynamodb[0].id, { newuniqid: dynamodb[0].newuniqid });
 		expect(result).toBe(true);
 	});
 
@@ -67,7 +69,7 @@ describe('DynamoDB', async function() {
 
 	test('Update', async () => {
 		// update the uniqid to a new one
-		await leoaws.dynamodb.update(settingsTable, dynamodb[0].id, {uniqid: dynamodb[1].uniqid}, '').then(data => {
+		await leoaws.dynamodb.update(settingsTable, dynamodb[0].id, { uniqid: dynamodb[1].uniqid }, '').then(data => {
 			expect(data).toBe(true);
 		});
 	});
@@ -114,7 +116,7 @@ describe('DynamoDB', async function() {
 			},
 			ExpressionAttributeValues: {
 				":partition": 'order-9',
-				":id": 369
+				":id": "369"
 			},
 			Limit: 1
 		}).then(data => {
@@ -193,7 +195,7 @@ describe('DynamoDB', async function() {
 			stream.put({
 				partition: 'qatest-' + i,
 				id: moment.now(),
-				data: JSON.stringify({"uniqid":uniqid()}),
+				data: JSON.stringify({ "uniqid": uniqid() }),
 				entity: 'qatest'
 			});
 		}
@@ -215,7 +217,7 @@ describe('DynamoDB', async function() {
 					Item: {
 						partition: 'qatest-' + i,
 						id: moment.now(),
-						data: JSON.stringify({"uniqid": uniqid()}),
+						data: JSON.stringify({ "uniqid": uniqid() }),
 						entity: 'batchTableWrite'
 					}
 				}
@@ -240,7 +242,7 @@ describe('DynamoDB', async function() {
 			transform.write({
 				partition: 'streamToTable-' + i,
 				id: moment.now(),
-				data: JSON.stringify({"uniqid": uniqid()}),
+				data: JSON.stringify({ "uniqid": uniqid() }),
 				entity: 'streamToTable'
 			});
 		}
@@ -263,7 +265,7 @@ describe('DynamoDB', async function() {
 		let settingsStream = leoaws.dynamodb.writeToTableInChunks(settingsTable);
 
 		dynamodb.forEach(item => {
-			settingsStream.delete({id: item.id});
+			settingsStream.delete({ id: item.id });
 		});
 		settingsStream.end((err) => {
 			if (err) {
@@ -295,8 +297,7 @@ describe('DynamoDB', async function() {
 	});
 });
 
-async function findAndDelete(i, stream)
-{
+async function findAndDelete(i, stream) {
 	return new Promise((resolve, reject) => {
 		// query for all of the test records we inserted, and delete them
 		leoaws.dynamodb.query({
@@ -318,14 +319,13 @@ async function findAndDelete(i, stream)
 			resolve('done');
 		}).catch(err => {
 			assert(false);
-			stream.end((err) => {});
+			stream.end((err) => { });
 			reject("Error");
 		});
 	});
 }
 
-function smartQuery(limit = null, count = null)
-{
+function smartQuery(limit = null, count = null) {
 	let params = {
 		TableName: entityTable,
 		KeyConditionExpression: `#partition = :partition`,
@@ -348,13 +348,13 @@ function smartQuery(limit = null, count = null)
 
 	return new Promise((resolve, reject) => {
 		leoaws.dynamodb.smartQuery(params, configuration)
-		.then(data => {
-			resolve(data);
-		})
-		.catch(err => {
-			assert(false);
-			reject(err);
-		});
+			.then(data => {
+				resolve(data);
+			})
+			.catch(err => {
+				assert(false);
+				reject(err);
+			});
 	});
 }
 

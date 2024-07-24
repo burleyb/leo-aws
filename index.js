@@ -6,7 +6,7 @@ const dynamodb = require("./lib/dynamodb");
 const kms = require("./lib/kms");
 const secrets = require("./lib/secretsmanager");
 const sqs = require("./lib/sqs");
-const AWS = require('aws-sdk');
+const { fromIni } = require("@aws-sdk/credential-providers");
 
 /**
  *
@@ -15,7 +15,7 @@ const AWS = require('aws-sdk');
  */
 function build(configuration) {
 	if (configuration.profile && !configuration.credentials) {
-		configuration.credentials = new AWS.SharedIniFileCredentials({
+		configuration.credentials = fromIni({
 			profile: configuration.profile,
 			role: configuration.role
 		});

@@ -1,8 +1,10 @@
 'use strict';
 
 const config = require('leo-config');
-const AWS = require('aws-sdk');
+const { fromIni } = require("@aws-sdk/credential-providers");
 const merge = require('lodash.merge');
+const requireFn = typeof __webpack_require__ === "function" ? __non_webpack_require__ : require;
+
 
 const leoaws = {
 	cloudformation: require('./lib/cloudformation'),
@@ -12,10 +14,10 @@ const leoaws = {
 	sqs: require('./lib/sqs'),
 };
 
-function factory (service, options) {
+function factory(service, options) {
 	const configuration = config.leoaws;
 	if (configuration && configuration.profile && !configuration.credentials) {
-		configuration.credentials = new AWS.SharedIniFileCredentials({
+		configuration.credentials = fromIni({
 			profile: configuration.profile,
 			role: configuration.role,
 		});
@@ -30,8 +32,9 @@ function factory (service, options) {
 		return leoaws[lowerService](configuration);
 	} else {
 		// return a configured AWS service
+		let serviceLib = requireFn("@aws-sdk/client-" + service.replace(/[A-Z]/g, (a) => "-" + a.toLowerCase()).replace(/^-/, ""));
 		return {
-			_service: new AWS[service](configuration),
+			_service: new serviceLib[service](configuration),
 		};
 	}
 }
