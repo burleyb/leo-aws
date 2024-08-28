@@ -23,28 +23,28 @@
 		"retry"
 	],
 	"dependencies": {
-		"async": "^2.6.1",
+		"async": "^2.6.4",
 		"backoff": "^2.5.0",
 		"leo-config": "1.1.0",
 		"leo-logger": "1.0.1",
 		"leo-streams": "2.0.0",
-		"lodash": "^4.17.14",
+		"lodash": "^4.17.21",
 		"lodash.merge": "^4.6.2"
 	},
 	"devDependencies": {
-		"jest": "^23.1.0",
-		"moment": "^2.22.2",
-		"uniqid": "^5.0.3"
+		"jest": "^23.6.0",
+		"moment": "^2.30.1",
+		"uniqid": "^5.4.0"
 	},
 	"peerDependencies": {
-		"@aws-sdk/client-cloudformation": "^3.470.0",
-		"@aws-sdk/client-dynamodb": "^3.449.0",
-		"@aws-sdk/client-kms": "^3.474.0",
-		"@aws-sdk/client-s3": "^3.445.0",
-		"@aws-sdk/client-sqs": "^3.474.0",
-		"@aws-sdk/client-secrets-manager": "^3.445.0",
-		"@aws-sdk/credential-providers": "^3.474.0",
-		"@aws-sdk/lib-dynamodb": "^3.449.0",
+		"@aws-sdk/client-cloudformation": "^3.637.0",
+		"@aws-sdk/client-dynamodb": "^3.637.0",
+		"@aws-sdk/client-kms": "^3.637.0",
+		"@aws-sdk/client-s3": "^3.637.0",
+		"@aws-sdk/client-secrets-manager": "^3.637.0",
+		"@aws-sdk/client-sqs": "^3.637.0",
+		"@aws-sdk/credential-providers": "^3.637.0",
+		"@aws-sdk/lib-dynamodb": "^3.637.0",
 		"@aws-sdk/node-http-handler": "^3.374.0"
 	}
 }
