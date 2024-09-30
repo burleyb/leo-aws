@@ -20,7 +20,7 @@ function build(configuration) {
 			role: configuration.role
 		});
 	}
-
+	
 	return Object.assign((config) => {
 		return new build(config)
 	}, {
