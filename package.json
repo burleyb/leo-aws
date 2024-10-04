@@ -25,9 +25,9 @@
 	"dependencies": {
 		"async": "^2.6.4",
 		"backoff": "^2.5.0",
-		"leo-config": "1.1.0",
-		"leo-logger": "1.0.1",
-		"leo-streams": "2.0.0",
+		"leo-config": "file:../leo-config",
+		"leo-logger": "leo-logger",
+		"leo-streams": "file:../leo-streams",
 		"lodash": "^4.17.21",
 		"lodash.merge": "^4.6.2"
 	},
