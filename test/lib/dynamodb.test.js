@@ -35,7 +35,7 @@ const dynamodb = [
 	}
 ];
 
-describe('DynamoDB', async function() {
+describe('DynamoDB', function() {
 	// beforeAll(() => {
 	// 	console.log('Preparing to run tests');
 	// });
